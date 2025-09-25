@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 export default function PokemonCall( { limit=6 } ) {
     const [pokemon, setPokemon] = useState([])
     const [loading, setLoading] = useState(false)
+    const [clickedCard, setClickedCard] = useState([])
     const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}`
     useEffect(() => {
         async function fetchPokemon() {
@@ -29,15 +30,29 @@ export default function PokemonCall( { limit=6 } ) {
         fetchPokemon()
     }, [limit])
     
-    useEffect(() => {
-        console.log(pokemon)
-    }, [pokemon])
+    function shuffleCards() {
+        setPokemon(prev => {
+            const shuffled = [...prev]
+            for (let i = shuffled.length - 1; i > 0; i--){
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            }
+
+          return shuffled
+        })
+    }
+    
+    function handleClickedCard(name) {
+        setClickedCard(prev => [...prev, name])
+        console.log("you've clicked: ", name)
+        shuffleCards()
+    }
 
     if (loading) return <p>Loading Pokemon...</p>
     return (
-        <ul>
-            {pokemon.map(pkm => <li key={pkm.name}>
-                <img src={pkm.sprite} alt={pkm.name} />
+        <ul className='grid grid-rows-2 grid-flow-col gap-12 justify-center'> 
+            {pokemon.map(pkm => <li key={pkm.name} onClick={() => handleClickedCard(pkm.name)} className='border rounded p-4 hover:scale-105'>
+                <img src={pkm.sprite} alt={pkm.name} draggable='false'/>
                 {pkm.name}
             </li>)}
         </ul>
