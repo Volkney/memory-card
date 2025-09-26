@@ -4,6 +4,8 @@ export default function PokemonCall( { limit=6 } ) {
     const [pokemon, setPokemon] = useState([])
     const [loading, setLoading] = useState(false)
     const [clickedCard, setClickedCard] = useState([])
+    const [uniqueCount, setUniqueCount] = useState(0)
+
     const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}`
     useEffect(() => {
         async function fetchPokemon() {
@@ -43,10 +45,15 @@ export default function PokemonCall( { limit=6 } ) {
     }
     
     function handleClickedCard(name) {
-        setClickedCard(prev => [...prev, name])
-        console.log("you've clicked: ", name)
-        shuffleCards()
-    }
+        setClickedCard((prev) => {
+          if (!prev.includes(name)) {
+            setUniqueCount((count) => count + 1) // only count unique clicks
+            return [...prev, name]
+          }
+          return prev // already clicked → do nothing
+        })
+        shuffleCards() // optional shuffle on click
+      }
 
     if (loading) return <p>Loading Pokemon...</p>
     return (
@@ -55,6 +62,7 @@ export default function PokemonCall( { limit=6 } ) {
                 <img src={pkm.sprite} alt={pkm.name} draggable='false'/>
                 {pkm.name}
             </li>)}
+            <li>{clickedCard.length}</li>
         </ul>
     )
 }
