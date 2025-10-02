@@ -4,6 +4,7 @@ export default function PokemonCall( { limit=6 } ) {
     const [pokemon, setPokemon] = useState([])
     const [loading, setLoading] = useState(false)
     const [clickedSet, setClickedSet] = useState(new Set())
+    const [message, setMessage] = useState('')
 
     const url = `https://pokeapi.co/api/v2/pokemon?limit=${limit}`
     useEffect(() => {
@@ -44,14 +45,34 @@ export default function PokemonCall( { limit=6 } ) {
     }
     
     function handleClickedCard(name) {
-        setClickedSet(prev => {
-            const newSet = new Set(prev)
-            newSet.add(name)
-            return newSet
-        })
-        shuffleCards()
-      }
+        if (clickedSet.has(name)) {
+            setMessage('You lose')
+            return
+        }
 
+        const newSet = new Set(clickedSet).add(name)
+
+        if (newSet.size === limit) {
+            setMessage('You win')
+            setClickedSet(newSet)
+            return
+        }
+        setClickedSet(prev => new Set(prev).add(name))
+        shuffleCards()
+        
+    }
+    
+    function resetGame() {
+        setMessage('')
+        setClickedSet(new Set())
+    }
+    function PlayAgain({ onReset }) {
+        return (
+            <button onClick={onReset}>
+                Play Again
+            </button>
+        )
+    }
     if (loading) return <p>Loading Pokemon...</p>
     return (
         <ul className='grid grid-rows-2 grid-flow-col gap-12 justify-center'> 
@@ -59,7 +80,11 @@ export default function PokemonCall( { limit=6 } ) {
                 <img src={pkm.sprite} alt={pkm.name} draggable='false'/>
                 {pkm.name}
             </li>)}
-            <li>Unique Clicks: { clickedSet.size}</li>
+            <li>Streak:{clickedSet.size}</li>
+            <section>
+                <p>{message}</p>
+                <p> {message && <PlayAgain onReset={resetGame}/>}</p>
+            </section>
         </ul>
     )
 }
