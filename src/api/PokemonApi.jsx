@@ -30,7 +30,7 @@ export default function PokemonCall( { limit=6 } ) {
             }
         }
         fetchPokemon()
-    }, [limit])
+    }, [url])
     
     function shuffleCards() {
         setPokemon(prev => {
@@ -65,6 +65,7 @@ export default function PokemonCall( { limit=6 } ) {
     function resetGame() {
         setMessage('')
         setClickedSet(new Set())
+        shuffleCards()
     }
     function PlayAgain({ onReset }) {
         return (
